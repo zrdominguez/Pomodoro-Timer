@@ -48,6 +48,25 @@ function nextSession(focusDuration, breakDuration) {
   };
 }
 
+function ProgressBar({ session, focusDuration, breakDuration }) {
+  const timeSeconds =
+    (session?.label === "Focusing" ? focusDuration : breakDuration) * 60;
+  const timeDiff = timeSeconds - session?.timeRemaining;
+  const progressVal = timeDiff !== 0 ? (timeDiff / timeSeconds) * 100 : 0;
+  return (
+    <div className="progress" style={{ height: "20px" }}>
+      <div
+        className="progress-bar"
+        role="progressbar"
+        aria-valuemin="0"
+        aria-valuemax="100"
+        aria-valuenow={progressVal} // TODO: Increase aria-valuenow as elapsed time increases
+        style={{ width: progressVal + "%" }} // TODO: Increase width % as elapsed time increases
+      />
+    </div>
+  );
+}
+
 function Pomodoro() {
   // Timer starts out paused
   const [isTimerRunning, setIsTimerRunning] = useState(false);
@@ -58,16 +77,16 @@ function Pomodoro() {
   const [focusDuration, setFocusDuration] = useState(25);
   const [breakDuration, setBreakDuration] = useState(5);
   const focusIncrease = () => {
-    setFocusDuration(Math.min(60, focusDuration + 5));
+    setFocusDuration((focusDuration) => Math.min(60, focusDuration + 5));
   };
   const focusDecrease = () => {
-    setFocusDuration(Math.max(5, focusDuration - 5));
+    setFocusDuration((focusDuration) => Math.max(5, focusDuration - 5));
   };
   const breakIncrease = () => {
-    setBreakDuration(Math.min(15, breakDuration + 1));
+    setBreakDuration((breakDuration) => Math.min(15, breakDuration + 1));
   };
   const breakDecrease = () => {
-    setBreakDuration(Math.max(1, breakDuration - 1));
+    setBreakDuration((breakDuration) => Math.max(1, breakDuration - 1));
   };
   const [disableFocusAndBreak, setDisableFocusAndBreak] = useState(false);
   const [disableStop, setDisableStop] = useState(true);
@@ -78,12 +97,6 @@ function Pomodoro() {
     setDisableFocusAndBreak(false);
     setIsTimerRunning(false);
     setSession(null);
-  };
-  const progressVal = () => {
-    const timeSeconds =
-      (session?.label === "Focusing" ? focusDuration : breakDuration) * 60;
-    const timeDiff = timeSeconds - session?.timeRemaining;
-    return timeDiff !== 0 ? (timeDiff / timeSeconds) * 100 : 0;
   };
 
   /**
@@ -251,16 +264,11 @@ function Pomodoro() {
           </div>
           <div className="row mb-2">
             <div className="col">
-              <div className="progress" style={{ height: "20px" }}>
-                <div
-                  className="progress-bar"
-                  role="progressbar"
-                  aria-valuemin="0"
-                  aria-valuemax="100"
-                  aria-valuenow={progressVal()} // TODO: Increase aria-valuenow as elapsed time increases
-                  style={{ width: progressVal() + "%" }} // TODO: Increase width % as elapsed time increases
-                />
-              </div>
+              <ProgressBar
+                session={session}
+                focusDuration={focusDuration}
+                breakDuration={breakDuration}
+              />
             </div>
           </div>
         </div>
